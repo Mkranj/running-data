@@ -6,3 +6,9 @@ This project turns a rather unorganized kind of data, jotted down exercise notes
 ## https://public.tableau.com/app/profile/m.k4987/viz/RunningStats_16586070966120/Dashboard32?publish=ye
 
 Try mousing over specific points, as well as filtering out one of the cities runs took place in!
+
+
+### The files
+"trcanje info.txt" is a file with the original notes jotted down after exercise, written in Croatian. It's interesting to compare it to the Excel file which is created at the end of the R script to see how a large block of text got turned into a neat, understandable database.
+
+If you want to run the R code yourself, simply download all the files in a single folder. Then, open the .Rproj file and run "running regex_comments.R". This will also create an up-to-date Excel version of the database in the folder, as well as several images with graphs of the major calculated metrics over time!
