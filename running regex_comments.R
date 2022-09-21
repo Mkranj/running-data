@@ -21,10 +21,11 @@ extracted_dates <- str_extract(original$V1, regex_date_pattern) %>% as.Date(extr
 
 # Extract laps
 
-regex_lap_pattern <- "\\d+([\\.\\,]\\d)*\\s*kr"
-regex_lap_pattern_just_number <-  "^\\d+([\\.\\,]\\d)*"
 # First we'll extract the whole part describing number of laps ran,
 # Then just the number
+regex_lap_pattern <- "\\d+([\\.\\,]\\d)*\\s*kr"
+regex_lap_pattern_just_number <-  "^\\d+([\\.\\,]\\d)*"
+
 
 extracted_laps <- str_extract(original$V1, regex_lap_pattern) %>% str_extract(regex_lap_pattern_just_number) %>%
     as.numeric()
@@ -32,10 +33,8 @@ extracted_laps <- str_extract(original$V1, regex_lap_pattern) %>% str_extract(re
 # To extract time, we first extract a vector of strings like "mm:ss", 
 # Then turn that into a number of seconds in a new vector
 
-regex_time_ran_pattern <- "(\\d\\d\\:\\d\\d.*m?)|(\\d+\\s*m(in)*)"
 # Two numbers with zero or more spaces, then "m"
-
-
+regex_time_ran_pattern <- "(\\d\\d\\:\\d\\d.*m?)|(\\d+\\s*m(in)*)"
 
 extracted_times <- str_extract(original$V1,regex_time_ran_pattern)
 
@@ -48,12 +47,13 @@ just_minutes <- as.numeric(just_minutes)
 # Extract number of seconds
 just_seconds <- str_extract(extracted_times,"\\:\\d\\d") %>% str_extract("\\d\\d") %>% as.numeric()
 
-# Extract number of hours
+# Extract number of hours for runs longer than 59:59m
+# In those rows that contain a number of hours, the FIRST digit is the number of hours
 regex_time_ran_pattern_more_than_hour <- "\\d\\:\\d\\d:\\d\\d."
 just_hours <- str_extract(original$V1, regex_time_ran_pattern_more_than_hour) %>% str_extract("^\\d") %>% as.numeric()
-# In those rows that contain a number of hours, the FIRST digit is the number of hours
 
-# Get the full text for display in database, replace those parts in extracted_times
+
+# Get the full text for later display in database, replace those parts in extracted_times
 # Because they only caught the minutes and seconds, not the hours
 
 extracted_times_more_than_hour <- str_extract(original$V1, regex_time_ran_pattern_more_than_hour)
@@ -177,11 +177,11 @@ df_location_dates <- arrange(df_location_dates, date)
 
 running_data$location <- "ZAGREB"
 
-for (i in 1 : nrow(df_location_dates)) {
-  # This for goes through every date that has a location change
-  for (j in 1 : nrow(running_data)) {
-   # For every row of the main base checks if the date is equal or higher than the current location date
-   # If so, it changes the location
+# This for goes through every date that has a location change
+for (i in 1 : nrow(df_location_dates)) {   
+ # For every row of the main base checks if the date is equal or higher than the current location date
+ # If so, it changes the location
+    for (j in 1 : nrow(running_data)) {  
      if (running_data$date[j] >= df_location_dates$date[i]) {
        running_data$location[j] <- df_location_dates$location[i]}
   }
@@ -210,7 +210,7 @@ ggsave(filename = "distance map.png", width = 20)
 ggplot(running_data, aes(x = date, y = min_rounded)) + geom_point() + geom_smooth(se = F, color = "red")
 ggsave(filename = "time spent map.png", width = 20)
 
-# Data only on runs with number of laps
+# Data only for runs with number of laps
 
 data_only_with_laps <- filter(running_data, is.na(laps) == F)
 ggplot(data_only_with_laps, aes(x = date, y = min_rounded)) + geom_point() + geom_smooth(se = F, color = "red")
